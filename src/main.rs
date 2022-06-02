@@ -10,7 +10,34 @@ use gtk::{
     ToolButton, ToolButtonExt, Toolbar, WidgetExt,
 };
 
+use toolbar::MusicToolbar;
+// use App;
+
+mod toolbar;
+
 const PLAY_STOCK: &str = "gtk-media-play";
+const PAUSE_STOCK: &str = "gtk-media-pause";
+
+struct App {
+    toolbar: MusicToolbar,
+    window: AllicationWindow,
+}
+
+// this constructor Creates window and MusicToolbar
+impl App {
+    fn new(application: Application) -> Self {
+        let window = ApplicationWindow::new(&application);
+        window.set_title("Rusic");
+        let toolbar = MusicToolbar::new();
+        window.add(toolbar.toolbar());
+        window.show_all();
+        let app = App { toolbar, window };
+        app.connect_events();
+        app.connect_toolbar_events();
+        app
+    }
+    fn connect_events(&self) {}
+}
 
 fn main() {
     let application = Application::new("com.github.rust-by-example", ApplicationFlags::empty())
