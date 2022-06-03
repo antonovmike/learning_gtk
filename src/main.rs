@@ -20,7 +20,7 @@ const PAUSE_STOCK: &str = "gtk-media-pause";
 
 struct App {
     toolbar: MusicToolbar,
-    window: AllicationWindow,
+    window: ApplicationWindow,
 }
 
 // this constructor Creates window and MusicToolbar
