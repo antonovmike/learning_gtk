@@ -8,9 +8,11 @@ use gio::{ApplicationExt, ApplicationExtManual, ApplicationFlags};
 use gtk::{
     Application, ApplicationWindow, ContainerExt, GtkWindowExt, Inhibit, SeparatorToolItem,
     ToolButton, ToolButtonExt, Toolbar, WidgetExt, Box,
+    Adjustment, Image, ImageExt, Scale, ScaleExt,
 };
 
 use toolbar::MusicToolbar;
+use gtk::Orientation::{Horizontal, Vertical};
 
 mod toolbar;
 
@@ -29,6 +31,8 @@ impl App {
         window.set_title("Rusic");
         let toolbar = MusicToolbar::new();
         // window.add(toolbar.toolbar()); // We remove this call because we'll instead add the toolbar to the box and the box to the window
+        let vbox = gtk::Box::new(Vertical, 0);
+        window.add(&vbox);
         window.show_all();
         let app = App { toolbar, window };
         app.connect_events();
