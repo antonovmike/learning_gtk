@@ -11,7 +11,6 @@ use gtk::{
 };
 
 use toolbar::MusicToolbar;
-// use App;
 
 mod toolbar;
 
