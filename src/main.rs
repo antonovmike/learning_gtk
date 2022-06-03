@@ -2,6 +2,7 @@
 extern crate gdk_pixbuf;
 extern crate gio;
 extern crate gtk;
+extern crate gtk_sys;
 extern crate id3;
 
 use std::env;
@@ -49,7 +50,7 @@ impl App {
         vbox.add(playlist.view());
 
         let cover = Image::new();
-        cover.set_from_file("src/image/atpharkfall.jpg");
+        // cover.set_from_file("src/image/atpharkfall.jpg");
         vbox.add(&cover);
         // cursor widget
         let adjustment = Adjustment::new(0.0, 0.0, 10.0, 0.0, 0.0, 0.0);
