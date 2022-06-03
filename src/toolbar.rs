@@ -31,7 +31,7 @@ impl MusicToolbar {
         toolbar.add(&remove_button);
         let stop_button = ToolButton::new_from_stock("gtk-stop");
         toolbar.add(&stop_button);
-        // ...
+
         let quit_button = ToolButton::new_from_stock("gtk-quit");
         toolbar.add(&quit_button);
         MusicToolbar {

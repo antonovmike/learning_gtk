@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 gio = "^0.3.0"
 gtk = "^0.3.0"
+gdk-pixbuf = "^0.3.0"
+id3 = "^0.2.0"
