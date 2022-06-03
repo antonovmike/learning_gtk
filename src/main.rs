@@ -30,7 +30,7 @@ struct App {
 impl App {
     fn new(application: Application) -> Self {
         let window = ApplicationWindow::new(&application);
-        window.set_title("Works");
+        window.set_title("My first GUI");
         let toolbar = MusicToolbar::new();
 
         let vbox = gtk::Box::new(Vertical, 0);
@@ -69,8 +69,7 @@ fn main() {
 
     application.connect_startup(|application| {
         let window = App::new(application.clone()).window;
-        window.set_title("My first GUI");
-        window.show();
+
         window.connect_delete_event(|_, _| Inhibit(false));
         let toolbar = Toolbar::new();
         
@@ -101,8 +100,6 @@ fn main() {
 
         let quit_button = ToolButton::new_from_stock("gtk-quit");
         toolbar.add(&quit_button);
-
-        // window.show_all();
     }); // Creates window
     application.connect_activate(|_| {});
     application.run(&env::args().collect::<Vec<_>>()); // starts the gtk event loop
