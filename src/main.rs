@@ -1,30 +1,31 @@
 #![allow(unused)]
+extern crate gdk_pixbuf;
 extern crate gio;
 extern crate gtk;
-extern crate gdk_pixbuf;
 extern crate id3;
 
 use std::env;
 
 use gio::{ApplicationExt, ApplicationExtManual, ApplicationFlags};
 use gtk::{
-    Application, ApplicationWindow, ContainerExt, GtkWindowExt, Inhibit, SeparatorToolItem,
-    ToolButton, ToolButtonExt, Toolbar, WidgetExt, Box,
-    Adjustment, Image, ImageExt, Scale, ScaleExt,
+    Adjustment, Application, ApplicationWindow, Box, ContainerExt, GtkWindowExt, Image, ImageExt,
+    Inhibit, Scale, ScaleExt, SeparatorToolItem, ToolButton, ToolButtonExt, Toolbar, WidgetExt,
 };
 
-use toolbar::MusicToolbar;
+use crate::playlist::Playlist;
 use gtk::Orientation::{Horizontal, Vertical};
+use toolbar::MusicToolbar;
 
-mod toolbar;
 mod playlist;
+mod toolbar;
 
 const PLAY_STOCK: &str = "gtk-media-play";
 const PAUSE_STOCK: &str = "gtk-media-pause";
 
 struct App {
     adjustment: Adjustment,
-	cover: Image,
+    cover: Image,
+    playlist: Playlist,
     toolbar: MusicToolbar,
     window: ApplicationWindow,
 }
@@ -40,13 +41,17 @@ impl App {
         let vbox = gtk::Box::new(Vertical, 0);
         window.add(&vbox);
 
-// toolbar widgets
+        // toolbar widgets
         let toolbar = MusicToolbar::new();
         vbox.add(toolbar.toolbar());
+
+        let playlist = Playlist::new();
+        vbox.add(playlist.view());
+
         let cover = Image::new();
         cover.set_from_file("src/image/atpharkfall.jpg");
         vbox.add(&cover);
-// cursor widget
+        // cursor widget
         let adjustment = Adjustment::new(0.0, 0.0, 10.0, 0.0, 0.0, 0.0);
         let scale = Scale::new(Horizontal, &adjustment);
         scale.set_draw_value(false);
@@ -54,13 +59,13 @@ impl App {
 
         window.show_all();
 
-		let app = App {
-			adjustment,
-			cover,
-			toolbar,
-			window,
-		};
-        
+        let app = App {
+            adjustment,
+            cover,
+            playlist,
+            toolbar,
+            window,
+        };
         app.connect_events();
         app.connect_toolbar_events();
         app

@@ -64,7 +64,7 @@ impl Playlist {
     fn add_pixbuf_column(treeview: &TreeView, column: i32, visibility: Visibility) {
         let view_column = TreeViewColumn::new();
         if visibility == Visible {
-            let cell = CellRendererPixbuf::new();
+            let cell = CellRendererPixbuf::new(); // type renderer created
             view_column.pack_start(&cell, true);
             view_column.add_attribute(&cell, "pixbuf", column);
         }
@@ -79,5 +79,8 @@ impl Playlist {
         Self::add_text_column(treeview, "Year", YEAR_COLUMN as i32);
         Self::add_text_column(treeview, "Track", TRACK_COLUMN as i32);
         Self::add_pixbuf_column(treeview, PIXBUF_COLUMN as i32, Invisible);
+    }
+    pub fn view(&self) -> &TreeView { // to add the widget to main.rs
+        &self.treeview
     }
 }
