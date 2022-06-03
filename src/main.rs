@@ -31,6 +31,7 @@ impl App {
     fn new(application: Application) -> Self {
         let window = ApplicationWindow::new(&application);
         window.set_title("My first GUI");
+
         let toolbar = MusicToolbar::new();
 
         let vbox = gtk::Box::new(Vertical, 0);
@@ -49,13 +50,14 @@ impl App {
         vbox.add(&scale);
 
         window.show_all();
+
 		let app = App {
 			adjustment,
 			cover,
 			toolbar,
 			window,
 		};
-
+        
         app.connect_events();
         app.connect_toolbar_events();
         app
@@ -71,35 +73,6 @@ fn main() {
         let window = App::new(application.clone()).window;
 
         window.connect_delete_event(|_, _| Inhibit(false));
-        let toolbar = Toolbar::new();
-        
-        window.add(&toolbar);
-        let open_button = ToolButton::new_from_stock("gtk-open");
-        toolbar.add(&open_button);
-
-        toolbar.add(&SeparatorToolItem::new());
-
-        let previous_button = ToolButton::new_from_stock("gtk-media-previous");
-        toolbar.add(&previous_button);
-
-        let play_button = ToolButton::new_from_stock(PLAY_STOCK);
-        toolbar.add(&play_button);
-
-        let stop_button = ToolButton::new_from_stock("gtk-media-stop");
-        toolbar.add(&stop_button);
-
-        let next_button = ToolButton::new_from_stock("gtk-media-next");
-        toolbar.add(&next_button);
-
-        toolbar.add(&SeparatorToolItem::new());
-
-        let remove_button = ToolButton::new_from_stock("gtk-remove");
-        toolbar.add(&remove_button);
-
-        toolbar.add(&SeparatorToolItem::new());
-
-        let quit_button = ToolButton::new_from_stock("gtk-quit");
-        toolbar.add(&quit_button);
     }); // Creates window
     application.connect_activate(|_| {});
     application.run(&env::args().collect::<Vec<_>>()); // starts the gtk event loop
