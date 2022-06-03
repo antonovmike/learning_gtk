@@ -17,6 +17,7 @@ use toolbar::MusicToolbar;
 use gtk::Orientation::{Horizontal, Vertical};
 
 mod toolbar;
+mod playlist;
 
 const PLAY_STOCK: &str = "gtk-media-play";
 const PAUSE_STOCK: &str = "gtk-media-pause";
