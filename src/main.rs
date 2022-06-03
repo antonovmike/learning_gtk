@@ -7,7 +7,7 @@ use std::env;
 use gio::{ApplicationExt, ApplicationExtManual, ApplicationFlags};
 use gtk::{
     Application, ApplicationWindow, ContainerExt, GtkWindowExt, Inhibit, SeparatorToolItem,
-    ToolButton, ToolButtonExt, Toolbar, WidgetExt,
+    ToolButton, ToolButtonExt, Toolbar, WidgetExt, Box,
 };
 
 use toolbar::MusicToolbar;
@@ -28,7 +28,7 @@ impl App {
         let window = ApplicationWindow::new(&application);
         window.set_title("Rusic");
         let toolbar = MusicToolbar::new();
-        window.add(toolbar.toolbar());
+        // window.add(toolbar.toolbar()); // We remove this call because we'll instead add the toolbar to the box and the box to the window
         window.show_all();
         let app = App { toolbar, window };
         app.connect_events();
