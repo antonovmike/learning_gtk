@@ -23,3 +23,27 @@ pub struct Playlist {
     model: ListStore,
     treeview: TreeView,
 }
+
+impl Playlist {
+    pub fn new() -> Self {
+        let model = ListStore::new(&[
+            Pixbuf::static_type(),
+            Type::String,
+            Type::String,
+            Type::String,
+            Type::String,
+            Type::String,
+            Type::String,
+            Type::String,
+            Pixbuf::static_type(),
+        ]);
+        let treeview = TreeView::new_with_model(&model);
+        treeview.set_hexpand(true);
+        treeview.set_vexpand(true);
+
+        Self::create_columns(&treeview);
+
+        Playlist { model, treeview }
+    }
+}
+
