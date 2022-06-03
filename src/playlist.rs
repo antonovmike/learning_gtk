@@ -19,11 +19,18 @@ const PIXBUF_COLUMN: u32 = 8;
 const IMAGE_SIZE: i32 = 256;
 const THUMBNAIL_SIZE: i32 = 64;
 
+use self::Visibility::*;
+#[derive(PartialEq)]
+enum Visibility {
+    Invisible,
+    Visible,
+}
+
 pub struct Playlist {
     model: ListStore,
     treeview: TreeView,
 }
-
+// playlist constructor
 impl Playlist {
     pub fn new() -> Self {
         let model = ListStore::new(&[
@@ -45,5 +52,32 @@ impl Playlist {
 
         Playlist { model, treeview }
     }
+    fn add_text_column(treeview: &TreeView, title: &str, column: i32) {
+        let view_column = TreeViewColumn::new();
+        view_column.set_title(title);
+        let cell = CellRendererText::new();
+        view_column.set_expand(true);
+        view_column.pack_start(&cell, true);
+        view_column.add_attribute(&cell, "text", column); // specifies that the view will set the text attribute from the data that comes from the model at the specified column
+        treeview.append_column(&view_column);
+    }
+    fn add_pixbuf_column(treeview: &TreeView, column: i32, visibility: Visibility) {
+        let view_column = TreeViewColumn::new();
+        if visibility == Visible {
+            let cell = CellRendererPixbuf::new();
+            view_column.pack_start(&cell, true);
+            view_column.add_attribute(&cell, "pixbuf", column);
+        }
+        treeview.append_column(&view_column);
+    }
+    fn create_columns(treeview: &TreeView) {
+        Self::add_pixbuf_column(treeview, THUMBNAIL_COLUMN as i32, Visible);
+        Self::add_text_column(treeview, "Title", TITLE_COLUMN as i32);
+        Self::add_text_column(treeview, "Artist", ARTIST_COLUMN as i32);
+        Self::add_text_column(treeview, "Album", ALBUM_COLUMN as i32);
+        Self::add_text_column(treeview, "Genre", GENRE_COLUMN as i32);
+        Self::add_text_column(treeview, "Year", YEAR_COLUMN as i32);
+        Self::add_text_column(treeview, "Track", TRACK_COLUMN as i32);
+        Self::add_pixbuf_column(treeview, PIXBUF_COLUMN as i32, Invisible);
+    }
 }
-
