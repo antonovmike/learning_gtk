@@ -2,10 +2,11 @@
 extern crate gdk_pixbuf;
 extern crate gio;
 extern crate gtk;
-extern crate gtk_sys;
+extern crate gtk_sys; // open mp3 files
 extern crate id3;
 
 use std::env;
+use std::rc::Rc; // reference counter
 
 use gio::{ApplicationExt, ApplicationExtManual, ApplicationFlags};
 use gtk::{
@@ -26,7 +27,7 @@ const PAUSE_STOCK: &str = "gtk-media-pause";
 struct App {
     adjustment: Adjustment,
     cover: Image,
-    playlist: Playlist,
+    playlist: Rc<Playlist>,
     toolbar: MusicToolbar,
     window: ApplicationWindow,
 }
@@ -46,7 +47,7 @@ impl App {
         let toolbar = MusicToolbar::new();
         vbox.add(toolbar.toolbar());
 
-        let playlist = Playlist::new();
+        let playlist = Rc::new(Playlist::new()); // Paylist is wrapped inside an reference counter
         vbox.add(playlist.view());
 
         let cover = Image::new();

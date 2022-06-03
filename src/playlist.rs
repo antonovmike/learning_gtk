@@ -26,6 +26,8 @@ enum Visibility {
     Visible,
 }
 
+const INTERP_HYPER: InterpType = 3;
+
 pub struct Playlist {
     model: ListStore,
     treeview: TreeView,
@@ -80,7 +82,24 @@ impl Playlist {
         Self::add_text_column(treeview, "Track", TRACK_COLUMN as i32);
         Self::add_pixbuf_column(treeview, PIXBUF_COLUMN as i32, Invisible);
     }
-    pub fn view(&self) -> &TreeView { // to add the widget to main.rs
+    pub fn view(&self) -> &TreeView {
+        // to add the widget to main.rs
         &self.treeview
+    }
+    fn set_pixbuf(&self, row: &TreeIter, tag: &Tag) {
+        if let Some(picture) = tag.pictures().next() {
+            let pixbuf_loader = PixbufLoader::new();
+            pixbuf_loader.set_size(IMAGE_SIZE, IMAGE_SIZE);
+            pixbuf_loader.loader_write(&picture.data).unwrap();
+            if let Some(pixbuf) = pixbuf_loader.get_pixbuf() {
+                let thumbnail = pixbuf
+                    .scale_simple(THUMBNAIL_SIZE, THUMBNAIL_SIZE, INTERP_HYPER)
+                    .unwrap();
+                self.model
+                    .set_value(row, THUMBNAIL_COLUMN, &thumbnail.to_value());
+                self.model.set_value(row, PIXBUF_COLUMN, &pixbuf.to_value());
+            }
+            pixbuf_loader.close().unwrap();
+        }
     }
 }
