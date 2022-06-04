@@ -10,6 +10,7 @@ extern crate simplemad;
 
 use std::env;
 use std::rc::Rc; // reference counter
+use std::time::Duration;
 
 use gio::{ApplicationExt, ApplicationExtManual, ApplicationFlags};
 use gtk::{
@@ -77,6 +78,10 @@ impl App {
         app
     }
     fn connect_events(&self) {}
+}
+
+fn to_millis(duration: Duration) -> u64 {
+	duration.as_secs() * 1000 + duration.subsec_nanos() as u64 / 1_000_000
 }
 
 fn main() {
