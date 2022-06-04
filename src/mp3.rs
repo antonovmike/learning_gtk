@@ -3,6 +3,8 @@ use std::time::Duration;
 
 use simplemad; // decodes frames of mpP3
 
+use super::to_millis;
+
 // decodes frames of mpP3
 pub struct Mp3Decoder<R>
 where
@@ -13,6 +15,29 @@ where
     current_frame_channel: usize,
     current_frame_sample_pos: usize,
     current_time: u64,
+}
+
+impl<R> Mp3Decoder<R>
+where
+    R: Read + Seek,
+{
+    pub fn new(mut data: R) -> Result<Mp3Decoder<R>, R> {
+        if !is_mp3(data.by_ref()) {
+            return Err(data);
+        }
+        let mut reader = simplemad::Decoder::decode(data).unwrap();
+
+        let current_frame = next_frame(&mut reader);
+        let current_time = to_millis(current_frame.duration);
+
+        Ok(Mp3Decoder {
+            reader,
+            current_frame,
+            current_frame_channel: 0,
+            current_frame_sample_pos: 0,
+            current_time,
+        })
+    }
 }
 
 // checks whether a stream of data is an mp3 file
