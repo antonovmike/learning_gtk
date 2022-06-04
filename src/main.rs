@@ -30,6 +30,10 @@ mod player;
 const PLAY_STOCK: &str = "gtk-media-play";
 const PAUSE_STOCK: &str = "gtk-media-pause";
 
+struct State {
+	stopped: bool,
+}
+
 struct App {
     adjustment: Adjustment,
     cover: Image,
