@@ -25,3 +25,19 @@ where
     data.seek(SeekFrom::Start(stream_pos)).unwrap();
     is_mp3
 }
+
+// decoding the next frame of an mp3 file
+fn next_frame<R: Read>(decoder: &mut simplemad::Decoder<R>) -> simplemad::Frame {
+    decoder
+        .filter_map(|f| f.ok())
+        .next()
+        .unwrap_or_else(|| simplemad::Frame {
+            bit_rate: 0,
+            layer: Default::default(),
+            mode: Default::default(),
+            sample_rate: 44100,
+            samples: vec![Vec::new()],
+            position: Duration::from_secs(0),
+            duration: Duration::from_secs(0),
+        })
+}
