@@ -1,3 +1,4 @@
+use crate::gtk::ImageExt;
 use gdk_pixbuf::{InterpType, Pixbuf, PixbufLoader};
 use gtk::{
     CellLayoutExt, CellRendererPixbuf, CellRendererText, ListStore, ListStoreExt,
@@ -152,5 +153,13 @@ impl Playlist {
             self.model.remove(&iter);
         }
     }
+    pub fn pixbuf(&self) -> Option<Pixbuf> {
+        // click play show album cover
+        let selection = self.treeview.get_selection();
+        if let Some((_, iter)) = selection.get_selected() {
+            let value = self.model.get_value(&iter, PIXBUF_COLUMN as i32);
+            return value.get::<Pixbuf>();
+        }
+        None
+    }
 }
-

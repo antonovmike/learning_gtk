@@ -1,3 +1,5 @@
+use crate::gtk::ImageExt;
+use gtk::Image;
 use crate::gtk::DialogExt;
 use crate::gtk::FileChooserExt;
 use crate::gtk::FileFilterExt;
@@ -6,6 +8,7 @@ use gtk::{ContainerExt, SeparatorToolItem, ToolButton, ToolButtonExt, Toolbar, W
 use std::path::PathBuf; // Opening files with a file dialog
 
 use super::App;
+use super::Playlist;
 
 use gtk_sys::{GTK_RESPONSE_ACCEPT, GTK_RESPONSE_CANCEL};
 const RESPONSE_ACCEPT: i32 = GTK_RESPONSE_ACCEPT as i32;
@@ -81,10 +84,28 @@ impl App {
                 playlist.add(&file);
             }
         });
+
         let playlist = self.playlist.clone();
         self.toolbar.remove_button.connect_clicked(move |_| {
             playlist.remove_selection();
         });
+
+        let playlist = self.playlist.clone();
+        let cover = self.cover.clone();
+        let play_button = self.toolbar.play_button.clone();
+        self.toolbar.play_button.connect_clicked(move |_| {
+            if play_button.get_stock_id() == Some(PLAY_STOCK.to_string()) {
+                play_button.set_stock_id(PAUSE_STOCK);
+                set_cover(&cover, &playlist);
+            } else {
+                play_button.set_stock_id(PLAY_STOCK);
+            }
+        });
+
+        fn set_cover(cover: &Image, playlist: &Playlist) {
+            cover.set_from_pixbuf(playlist.pixbuf().as_ref());
+            cover.show();
+        }
     }
 }
 
