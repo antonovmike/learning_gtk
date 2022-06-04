@@ -81,7 +81,6 @@ fn main() {
 
     application.connect_startup(|application| {
         let window = App::new(application.clone()).window;
-
         window.connect_delete_event(|_, _| Inhibit(false));
     }); // Creates window
     application.connect_activate(|_| {});

@@ -81,6 +81,10 @@ impl App {
                 playlist.add(&file);
             }
         });
+        let playlist = self.playlist.clone();
+        self.toolbar.remove_button.connect_clicked(move |_| {
+            playlist.remove_selection();
+        });
     }
 }
 
