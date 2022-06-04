@@ -17,6 +17,11 @@ where
     current_time: u64,
 }
 
+// constructor of mp3 decoder
+// it checks whether the stream contains mp3 data
+// not - error
+// yes - creates a Decoder from simplemad crate
+// next read first frame and get it's time in milliseconds
 impl<R> Mp3Decoder<R>
 where
     R: Read + Seek,
@@ -37,6 +42,31 @@ where
             current_frame_sample_pos: 0,
             current_time,
         })
+    }
+
+    // get current time
+    pub fn current_time(&self) -> u64 {
+        self.current_time
+    }
+    // get current rate
+    pub fn samples_rate(&self) -> u32 {
+        self.current_frame.sample_rate
+    }
+
+    // method to compute the duration of a song
+    pub fn compute_duration(mut data: R) -> Option<Duration> {
+        if !is_mp3(data.by_ref()) {
+            return None;
+        }
+        let decoder = simplemad::Decoder::decode_headers(data).unwrap();
+        Some(
+            decoder
+                .filter_map(|frame| match frame {
+                    Ok(frame) => Some(frame.duration),
+                    Err(_) => None,
+                })
+                .sum(),
+        )
     }
 }
 
