@@ -1,8 +1,8 @@
 use crate::gtk::DialogExt;
 use crate::gtk::FileChooserExt;
 use crate::gtk::FileFilterExt;
+use gtk::{ApplicationWindow, FileChooserAction, FileChooserDialog, FileFilter}; // Opening files with a file dialog
 use gtk::{ContainerExt, SeparatorToolItem, ToolButton, ToolButtonExt, Toolbar, WidgetExt};
-use gtk::{FileChooserAction, FileChooserDialog, FileFilter, ApplicationWindow}; // Opening files with a file dialog
 use std::path::PathBuf; // Opening files with a file dialog
 
 use super::App;
@@ -76,10 +76,10 @@ impl App {
         let parent = self.window.clone();
         let playlist = self.playlist.clone();
         self.toolbar.open_button.connect_clicked(move |_| {
-	    let file = show_open_dialog(&parent);
-	    if let Some(file) = file {
-		    playlist.add(&file);
-	    }
+            let file = show_open_dialog(&parent);
+            if let Some(file) = file {
+                playlist.add(&file);
+            }
         });
     }
 }
