@@ -4,6 +4,9 @@ extern crate gio;
 extern crate gtk;
 extern crate gtk_sys; // open mp3 files
 extern crate id3;
+extern crate crossbeam;
+extern crate pulse_simple;
+extern crate simplemad;
 
 use std::env;
 use std::rc::Rc; // reference counter
@@ -20,6 +23,7 @@ use toolbar::MusicToolbar;
 
 mod playlist;
 mod toolbar;
+mod mp3;
 
 const PLAY_STOCK: &str = "gtk-media-play";
 const PAUSE_STOCK: &str = "gtk-media-pause";
