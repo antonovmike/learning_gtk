@@ -1,9 +1,9 @@
 use std::fs::File;
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::{Arc, Condvar, Mutex}; // sync can be safely shared with multiple threads
 use std::thread;
-use crossbeam::sync::SegQueue;
+use crossbeam::sync::SegQueue; // lock-free queue, can be used by multiple threads without a lock
 use pulse_simple::Playback;
 use super::mp3::Mp3Decoder;
 use self::Action::*;
@@ -20,4 +20,14 @@ enum Action {
 struct EventLoop {
     queue: Arc<SegQueue<Action>>,
     playing: Arc<Mutex<bool>>,
+}
+
+// create the queue and the Boolean wrapped in a Mutex
+impl EventLoop {
+	fn new() -> Self {
+		EventLoop {
+			queue: Arc::new(SegQueue::new()),
+			playing: Arc::new(Mutex::new(false)),
+		}
+	}
 }
