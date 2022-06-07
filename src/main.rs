@@ -21,6 +21,7 @@ use gtk::{
 use crate::playlist::Playlist;
 use gtk::Orientation::{Horizontal, Vertical};
 use toolbar::MusicToolbar;
+use std::sync::{Arc, Mutex};
 
 mod playlist;
 mod toolbar;
@@ -38,6 +39,7 @@ struct App {
     adjustment: Adjustment,
     cover: Image,
     playlist: Rc<Playlist>,
+    state: Arc<Mutex<State>>,
     toolbar: MusicToolbar,
     window: ApplicationWindow,
 }
@@ -57,8 +59,8 @@ impl App {
         let toolbar = MusicToolbar::new();
         vbox.add(toolbar.toolbar());
 
-        let playlist = Rc::new(Playlist::new()); // Paylist is wrapped inside an reference counter
-        vbox.add(playlist.view());
+        // let playlist = Rc::new(Playlist::new( app.state /*expected 1 argument*/ )); // Paylist is wrapped inside an reference counter
+        // vbox.add(playlist.view());
 
         let cover = Image::new();
         // cover.set_from_file("src/image/atpharkfall.jpg");
@@ -71,13 +73,24 @@ impl App {
 
         window.show_all();
 
+        let state = Arc::new(Mutex::new(State {
+			stopped: true,
+		}));
+
+		let playlist = Rc::new(Playlist::new(state.clone()));
+
         let app = App {
             adjustment,
             cover,
             playlist,
+            state,
             toolbar,
             window,
         };
+
+        let playlist = Rc::new(Playlist::new( app.state.clone() /*expected 1 argument*/ )); // Paylist is wrapped inside an reference counter
+        vbox.add(playlist.view());
+
         app.connect_events();
         app.connect_toolbar_events();
         app

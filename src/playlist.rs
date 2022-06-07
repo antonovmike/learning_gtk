@@ -1,3 +1,5 @@
+use crate::toolbar::Model;
+use gtk::Image;
 use crate::gtk::ImageExt;
 use gdk_pixbuf::{InterpType, Pixbuf, PixbufLoader};
 use gtk::{
@@ -7,6 +9,11 @@ use gtk::{
 };
 use id3::Tag;
 use std::path::Path;
+
+use std::sync::{Arc, Mutex};
+
+use super::State;
+use super::player::Player;
 
 const THUMBNAIL_COLUMN: u32 = 0;
 const TITLE_COLUMN: u32 = 1;
@@ -20,6 +27,9 @@ const PIXBUF_COLUMN: u32 = 8;
 const IMAGE_SIZE: i32 = 256;
 const THUMBNAIL_SIZE: i32 = 64;
 
+pub const PAUSE_ICON: &str = "gtk-media-pause";
+pub const PLAY_ICON: &str = "gtk-media-play";
+
 use self::Visibility::*;
 #[derive(PartialEq)]
 enum Visibility {
@@ -30,31 +40,35 @@ enum Visibility {
 const INTERP_HYPER: InterpType = 3;
 
 pub struct Playlist {
-    model: ListStore,
-    treeview: TreeView,
+	model: ListStore,
+	player: Player,
+	treeview: TreeView,
 }
 // playlist constructor
 impl Playlist {
-    pub fn new() -> Self {
-        let model = ListStore::new(&[
-            Pixbuf::static_type(),
-            Type::String,
-            Type::String,
-            Type::String,
-            Type::String,
-            Type::String,
-            Type::String,
-            Type::String,
-            Pixbuf::static_type(),
-        ]);
-        let treeview = TreeView::new_with_model(&model);
-        treeview.set_hexpand(true);
-        treeview.set_vexpand(true);
+    pub(crate) fn new(state: Arc<Mutex<State>>) -> Self {
+		let model = ListStore::new(&[
+			Pixbuf::static_type(),
+			Type::String,
+			Type::String,
+			Type::String,
+			Type::String,
+			Type::String,
+			Type::String,
+			Type::String,
+			Pixbuf::static_type(),
+		]);
+		let treeview = TreeView::new_with_model(&model);
+		treeview.set_hexpand(true);
+		treeview.set_vexpand(true);
+		Self::create_columns(&treeview);
 
-        Self::create_columns(&treeview);
-
-        Playlist { model, treeview }
-    }
+		Playlist {
+				model,
+				player: Player::new(state.clone()),
+				treeview,
+		}
+	}
     fn add_text_column(treeview: &TreeView, title: &str, column: i32) {
         let view_column = TreeViewColumn::new();
         view_column.set_title(title);
@@ -162,4 +176,35 @@ impl Playlist {
         }
         None
     }
+// get path of selection
+    fn selected_path(&self) -> Option<String> {
+        let selection = self.treeview.get_selection();
+        if let Some((_, iter)) = selection.get_selected() {
+            let value = self.model.get_value(&iter, PATH_COLUMN as i32);
+            return value.get::<String>();
+        }
+        None
+    }
+
+// ERROR
+// method to load selected song
+    pub fn play(&self) -> bool {
+        // let load = gdk_pixbuf::PixbufLoader::new();
+        if let Some(path) = self.selected_path() {
+            self.player.load(&path);
+            // self.player.load;
+            true
+        } else {
+            false
+        }
+    }
 }
+
+// fn new_icon(icon: &str) -> Image {
+//     Image::new_from_file(format!("assets/{}.png", icon))
+// }
+// fn model() -> Model {
+//     Model {
+//         play_image: new_icon(PLAY_ICON),
+//     }
+// }

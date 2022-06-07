@@ -1,3 +1,5 @@
+use crate::playlist::PAUSE_ICON;
+use crate::playlist::PLAY_ICON;
 use crate::gtk::ImageExt;
 use gtk::Image;
 use crate::gtk::DialogExt;
@@ -10,12 +12,21 @@ use std::path::PathBuf; // Opening files with a file dialog
 use super::App;
 use super::Playlist;
 
+// mod playlist;
+
 use gtk_sys::{GTK_RESPONSE_ACCEPT, GTK_RESPONSE_CANCEL};
 const RESPONSE_ACCEPT: i32 = GTK_RESPONSE_ACCEPT as i32;
 const RESPONSE_CANCEL: i32 = GTK_RESPONSE_CANCEL as i32;
 
-const PLAY_STOCK: &str = "gtk-media-play";
+const PLAY_STOCK:  &str = "gtk-media-play";
 const PAUSE_STOCK: &str = "gtk-media-pause";
+// const PAUSE_ICON: &Playlist = &playlist::PAUSE_ICON;
+// pub const PAUSE_ICON: &str = "gtk-media-pause";
+// pub const PLAY_ICON: &str = "gtk-media-play";
+
+pub struct Model {
+    play_image: Image,
+}
 
 pub struct MusicToolbar {
     pub open_button: ToolButton,
@@ -26,6 +37,7 @@ pub struct MusicToolbar {
     remove_button: ToolButton,
     stop_button: ToolButton,
     toolbar: Toolbar,
+    play_image: Image,
 }
 
 impl MusicToolbar {
@@ -43,9 +55,11 @@ impl MusicToolbar {
         toolbar.add(&remove_button);
         let stop_button = ToolButton::new_from_stock("gtk-stop");
         toolbar.add(&stop_button);
-
         let quit_button = ToolButton::new_from_stock("gtk-quit");
         toolbar.add(&quit_button);
+
+        let play_image = Image::new_from_file("gtk-image");
+
         MusicToolbar {
             open_button,
             next_button,
@@ -55,12 +69,22 @@ impl MusicToolbar {
             remove_button,
             stop_button,
             toolbar,
+            play_image,
         }
     }
     pub fn toolbar(&self) -> &Toolbar {
         &self.toolbar
     }
 }
+
+// fn new_icon(icon: &str) -> Image {
+//     Image::new_from_file(format!("assets/{}.png", icon))
+// }
+// fn model() -> Model {
+//     Model {
+//         play_image: new_icon(PLAY_ICON),
+//     }
+// }
 
 impl App {
     pub fn connect_toolbar_events(&self) {
@@ -76,6 +100,7 @@ impl App {
                 play_button.set_stock_id(PLAY_STOCK);
             }
         });
+
         let parent = self.window.clone();
         let playlist = self.playlist.clone();
         self.toolbar.open_button.connect_clicked(move |_| {
@@ -102,9 +127,37 @@ impl App {
             }
         });
 
+// ERROR
+        // let playlist = self.playlist.clone();
+		// let play_image = self.toolbar.play_image.clone();
+		// let cover = self.cover.clone();
+		// let state = self.state.clone();
+		// self.toolbar.play_button.connect_clicked(move |_| {
+		// 	if state.lock().unwrap().stopped {
+		// 		if playlist.play() {
+		// 			set_image_icon(&play_image, PAUSE_ICON);
+		// 			set_cover(&cover, &playlist);
+		// 		}
+		// 		} else {
+		// 			set_image_icon(&play_image, PLAY_ICON);
+		// 		}
+		// });
+        fn new_icon(icon: &str) -> Image {
+            Image::new_from_file(format!("assets/{}.png", icon))
+        }
+        fn model() -> Model {
+            Model {
+                play_image: new_icon(PLAY_ICON),
+            }
+        }
         fn set_cover(cover: &Image, playlist: &Playlist) {
             cover.set_from_pixbuf(playlist.pixbuf().as_ref());
             cover.show();
+        }
+        
+        fn set_image_icon(icon: &Image, playlist: &Playlist) {
+            icon.set_from_pixbuf(playlist.pixbuf().as_ref());
+            icon.show();
         }
     }
 }
