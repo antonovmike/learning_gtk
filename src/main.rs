@@ -59,11 +59,8 @@ impl App {
         let toolbar = MusicToolbar::new();
         vbox.add(toolbar.toolbar());
 
-        // let playlist = Rc::new(Playlist::new( app.state /*expected 1 argument*/ )); // Paylist is wrapped inside an reference counter
-        // vbox.add(playlist.view());
-
         let cover = Image::new();
-        // cover.set_from_file("src/image/atpharkfall.jpg");
+        
         vbox.add(&cover);
         // cursor widget
         let adjustment = Adjustment::new(0.0, 0.0, 10.0, 0.0, 0.0, 0.0);
@@ -88,7 +85,7 @@ impl App {
             window,
         };
 
-        let playlist = Rc::new(Playlist::new( app.state.clone() /*expected 1 argument*/ )); // Paylist is wrapped inside an reference counter
+        let playlist = Rc::new(Playlist::new( app.state.clone() )); // Paylist is wrapped inside an reference counter
         vbox.add(playlist.view());
 
         app.connect_events();

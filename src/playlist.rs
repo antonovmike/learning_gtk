@@ -186,13 +186,12 @@ impl Playlist {
         None
     }
 
-// ERROR
+// FIX IT
 // method to load selected song
     pub fn play(&self) -> bool {
         // let load = gdk_pixbuf::PixbufLoader::new();
         if let Some(path) = self.selected_path() {
             self.player.load(&path);
-            // self.player.load;
             true
         } else {
             false

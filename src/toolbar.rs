@@ -5,9 +5,9 @@ use gtk::Image;
 use crate::gtk::DialogExt;
 use crate::gtk::FileChooserExt;
 use crate::gtk::FileFilterExt;
-use gtk::{ApplicationWindow, FileChooserAction, FileChooserDialog, FileFilter}; // Opening files with a file dialog
+use gtk::{ApplicationWindow, FileChooserAction, FileChooserDialog, FileFilter}; // Open files with a file dialog
 use gtk::{ContainerExt, SeparatorToolItem, ToolButton, ToolButtonExt, Toolbar, WidgetExt};
-use std::path::PathBuf; // Opening files with a file dialog
+use std::path::PathBuf; // Open files with a file dialog
 
 use super::App;
 use super::Playlist;
@@ -20,12 +20,9 @@ const RESPONSE_CANCEL: i32 = GTK_RESPONSE_CANCEL as i32;
 
 const PLAY_STOCK:  &str = "gtk-media-play";
 const PAUSE_STOCK: &str = "gtk-media-pause";
-// const PAUSE_ICON: &Playlist = &playlist::PAUSE_ICON;
-// pub const PAUSE_ICON: &str = "gtk-media-pause";
-// pub const PLAY_ICON: &str = "gtk-media-play";
 
 pub struct Model {
-    play_image: Image,
+    pub play_image: Image,
 }
 
 pub struct MusicToolbar {
@@ -77,14 +74,14 @@ impl MusicToolbar {
     }
 }
 
-// fn new_icon(icon: &str) -> Image {
-//     Image::new_from_file(format!("assets/{}.png", icon))
-// }
-// fn model() -> Model {
-//     Model {
-//         play_image: new_icon(PLAY_ICON),
-//     }
-// }
+fn new_icon(icon: &str) -> Image {
+    Image::new_from_file(format!("assets/{}.png", icon))
+}
+fn model() -> Model {
+    Model {
+        play_image: new_icon(PLAY_ICON),
+    }
+}
 
 impl App {
     pub fn connect_toolbar_events(&self) {
@@ -127,21 +124,21 @@ impl App {
             }
         });
 
-// ERROR
-        // let playlist = self.playlist.clone();
-		// let play_image = self.toolbar.play_image.clone();
-		// let cover = self.cover.clone();
-		// let state = self.state.clone();
-		// self.toolbar.play_button.connect_clicked(move |_| {
-		// 	if state.lock().unwrap().stopped {
-		// 		if playlist.play() {
-		// 			set_image_icon(&play_image, PAUSE_ICON);
-		// 			set_cover(&cover, &playlist);
-		// 		}
-		// 		} else {
-		// 			set_image_icon(&play_image, PLAY_ICON);
-		// 		}
-		// });
+// FIX IT
+        let playlist = self.playlist.clone();
+		let play_image = self.toolbar.play_image.clone();
+		let cover = self.cover.clone();
+		let state = self.state.clone();
+		self.toolbar.play_button.connect_clicked(move |_| {
+			if state.lock().unwrap().stopped {
+				if playlist.play() {
+					// set_image_icon(&play_image, PAUSE_ICON);
+					set_cover(&cover, &playlist);
+				}
+				} else {
+					// set_image_icon(&play_image, PLAY_ICON);
+				}
+		});
         fn new_icon(icon: &str) -> Image {
             Image::new_from_file(format!("assets/{}.png", icon))
         }
@@ -162,7 +159,7 @@ impl App {
     }
 }
 
-// Opening files with a file dialog
+// Open files with a file dialog
 fn show_open_dialog(parent: &ApplicationWindow) -> Option<PathBuf> {
     let mut file = None;
     let dialog = FileChooserDialog::new(
