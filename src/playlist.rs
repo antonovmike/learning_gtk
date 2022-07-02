@@ -1,3 +1,5 @@
+use std::cell::RefCell; // Interior mutability
+use std::cmp::max; // Interior mutability
 use crate::toolbar::Model;
 use gtk::Image;
 use crate::gtk::ImageExt;
@@ -40,6 +42,7 @@ enum Visibility {
 const INTERP_HYPER: InterpType = 3;
 
 pub struct Playlist {
+    current_song: RefCell<Option<String>>, // Interior mutability
 	model: ListStore,
 	player: Player,
 	treeview: TreeView,
@@ -64,9 +67,9 @@ impl Playlist {
 		Self::create_columns(&treeview);
 
 		Playlist {
-				model,
-				player: Player::new(state.clone()),
-				treeview,
+            current_song: RefCell::new(None),
+			model, player: Player::new(state.clone()),
+			treeview,
 		}
 	}
     fn add_text_column(treeview: &TreeView, title: &str, column: i32) {
@@ -185,17 +188,80 @@ impl Playlist {
         }
         None
     }
-
-// FIX IT
-// method to load selected song
+//  Interior mutability
+    pub fn path(&self) -> Option<String> {
+        self.current_song.borrow().clone()
+    }
     pub fn play(&self) -> bool {
-        // let load = gdk_pixbuf::PixbufLoader::new();
         if let Some(path) = self.selected_path() {
-            self.player.load(&path);
+            if self.player.is_paused() && Some(&path) ==
+            self.path().as_ref() {
+                self.player.resume();
+            } else {
+                self.player.load(&path);
+                *self.current_song.borrow_mut() = Some(path.into());
+            }
             true
         } else {
             false
         }
+    }
+    pub fn stop(&self) {
+	    *self.current_song.borrow_mut() = None;
+	    self.player.stop();
+    }
+    pub fn next(&self) -> bool {
+        let selection = self.treeview.get_selection();
+        let next_iter =
+            if let Some((_, iter)) = selection.get_selected() {
+                if !self.model.iter_next(&iter) {
+                    return false;
+                }
+                Some(iter)
+            }
+            else {
+                self.model.get_iter_first()
+            };
+        if let Some(ref iter) = next_iter {
+            selection.select_iter(iter);
+            self.play();
+        }
+        next_iter.is_some()
+    }
+    pub fn previous(&self) -> bool {
+        let selection = self.treeview.get_selection();
+        let previous_iter =
+            if let Some((_, iter)) = selection.get_selected() {
+                if !self.model.iter_previous(&iter) {
+                    return false;
+                }
+                Some(iter)
+            }
+            else {self.model.iter_nth_child(None, max(0,
+                self.model.iter_n_children(None)
+            - 1))
+            };
+        if let Some(ref iter) = previous_iter {
+            selection.select_iter(iter);
+            self.play();
+            }
+        previous_iter.is_some()
+    }
+
+// FIX IT
+// method to load selected song
+    // pub fn play(&self) -> bool {
+    //     // let load = gdk_pixbuf::PixbufLoader::new();
+    //     if let Some(path) = self.selected_path() {
+    //         self.player.load(&path);
+    //         true
+    //     } else {
+    //         false
+    //     }
+    // }
+// Interior mutability
+    pub fn pause(&self) {
+        self.player.pause();
     }
 }
 

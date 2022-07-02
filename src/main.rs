@@ -8,6 +8,8 @@ extern crate crossbeam;
 extern crate pulse_simple;
 extern crate simplemad;
 
+use crate::playlist::PLAY_ICON;
+
 use std::env;
 use std::rc::Rc; // reference counter
 use std::time::Duration;
@@ -46,7 +48,7 @@ struct App {
 
 // this constructor creates window and MusicToolbar
 impl App {
-    fn new(application: Application) -> Self {
+    fn new(&self, application: Application) -> Self {
         let window = ApplicationWindow::new(&application);
         window.set_title("My first GUI");
 
@@ -87,6 +89,17 @@ impl App {
 
         let playlist = Rc::new(Playlist::new( app.state.clone() )); // Paylist is wrapped inside an reference counter
         vbox.add(playlist.view());
+
+        let playlist = self.playlist.clone();
+        let play_image = self.toolbar.play_image.clone();
+        let cover = self.cover.clone();
+        
+        fn set_image_icon(play_image: &Image, play_icon: &str) {}
+        self.toolbar.stop_button.connect_clicked(move |_|	{
+            playlist.stop();
+            cover.hide();
+            set_image_icon(&play_image, PLAY_ICON); // FIX IT
+        });
 
         app.connect_events();
         app.connect_toolbar_events();

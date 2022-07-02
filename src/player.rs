@@ -1,16 +1,35 @@
 use std::fs::File;
 use std::io::BufReader;
+use std::cell::RefCell;
+use std::cell::Cell;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Condvar, Mutex}; // sync can be safely shared with multiple threads
 use std::thread;
+use std::time::Duration;
 use crossbeam::sync::SegQueue; // lock-free queue, can be used by multiple threads without a lock
 use pulse_simple::Playback;
+// use futures::{AsyncSink, Sink};
+// use futures::sync::mpsc::UnboundedSender;
 // use gtk::{ApplicationWindow, FileChooserAction, FileChooserDialog, FileFilter};
 use super::mp3::Mp3Decoder;
+// use mp3::Mp3Decoder;
 use self::Action::*;
+// use playlist::PlayerMsg::{
+//     self,
+//     PlayerPlay,
+//     PlayerStop,PlayerTime,
+//     };
 
 const BUFFER_SIZE: usize = 1000;
 const DEFAULT_RATE: u32 = 44100;
+
+// We imported a new PlayerMsg type from the playlist module, so let's add it:
+#[derive(Clone)]
+pub enum PlayerMsg {
+    PlayerPlay,
+    PlayerStop,
+    PlayerTime(u64),
+}
 
 enum Action {
     Load(PathBuf),
@@ -19,33 +38,69 @@ enum Action {
 
 #[derive(Clone)]
 struct EventLoop {
+    condition_variable: Arc<(Mutex<bool>, Condvar)>,
     queue: Arc<SegQueue<Action>>,
     playing: Arc<Mutex<bool>>,
-    // load: Arc<SegQueue<Action>>,
-    // load: Arc<crate::player::Action>,
 }
 
 pub struct Player {
 	app_state: Arc<Mutex<super::State>>,
 	event_loop: EventLoop,
     // pub load: EventLoop,
+	paused: Cell<bool>, // Interior mutability
+    // tx: UnboundedSender<PlayerMsg>,
 }
 
 // create the queue and the Boolean wrapped in a Mutex
 impl EventLoop {
-	fn new() -> Self {
-		EventLoop {
-			queue: Arc::new(SegQueue::new()),
-			playing: Arc::new(Mutex::new(false)),
-            // load: Arc::new(SegQueue::new()),
-		}
-	}
+    fn new() -> Self {
+        EventLoop {
+            condition_variable: Arc::new((Mutex::new(false), Condvar::new())),
+            queue: Arc::new(SegQueue::new()),
+            playing: Arc::new(Mutex::new(false)),
+        }
+    }
 }
 
 // player constructor
 impl Player {
+    // Interior mutability
+    fn emit(&self, action: Action) {
+        self.event_loop.queue.push(action);
+    }
+    pub fn stop(&self) {
+        // Stop => { // FIX IT
+        //     source = None;
+        // },
+        self.paused.set(false);self.app_state.lock().unwrap().stopped = true;
+            self.emit(Stop);
+            self.set_playing(false);
+        }
+    pub fn is_paused(&self) -> bool {
+        self.paused.get()
+    }
+    pub fn pause(&self) {
+        self.paused.set(true);
+        self.app_state.lock().unwrap().stopped = true;
+        self.set_playing(false);
+    }
+    pub fn resume(&self) {
+        self.paused.set(false);
+        self.app_state.lock().unwrap().stopped = false;
+        self.set_playing(true);
+    }
+    fn set_playing(&self, playing: bool) {
+        *self.event_loop.playing.lock().unwrap() = playing;
+        let (ref lock, ref condition_variable) = *self.event_loop.condition_variable; // FIX IT
+        let mut started = lock.lock().unwrap();
+        *started = playing;
+        if playing {
+            condition_variable.notify_one();
+        }
+    }
+
 // method for self.player.load(&path);
-    pub(crate) fn load(&self, path: &String) {}
+    pub(crate) fn load(&self, path: &String) {} // FIX IT
 
 	pub(crate) fn new(app_state: Arc<Mutex<super::State>>) -> Self {
 		let event_loop = EventLoop::new();
@@ -96,6 +151,8 @@ impl Player {
 			app_state,
 			event_loop,
             // load,
+            paused: Cell::new(false), // Interior mutability
+            // tx,
 		}
 	}
 }

@@ -32,9 +32,9 @@ pub struct MusicToolbar {
     previous_button: ToolButton,
     quit_button: ToolButton,
     remove_button: ToolButton,
-    stop_button: ToolButton,
+    pub stop_button: ToolButton,
     toolbar: Toolbar,
-    play_image: Image,
+    pub play_image: Image,
 }
 
 impl MusicToolbar {
@@ -136,6 +136,7 @@ impl App {
 					set_cover(&cover, &playlist);
 				}
 				} else {
+                    playlist.pause();
 					// set_image_icon(&play_image, PLAY_ICON);
 				}
 		});
